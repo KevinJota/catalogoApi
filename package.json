@@ -1,0 +1,24 @@
+{
+  "name": "criacao_api",
+  "version": "1.0.0",
+  "description": "Criação de APi de jogos ",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "api",
+    "node.js",
+    "mongoDB",
+    "mongoose",
+    "express"
+  ],
+  "author": "Grupo",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "mongodb": "^6.5.0",
+    "mongoose": "^8.3.2"
+  }
+}
