@@ -26,6 +26,24 @@ app .get('/', async(req, res) =>{
     return res.send(jogos);
 }),
 
+app.get('/:_id', async (req, res) => {
+    const _id = req.params._id; // Obtém o título diretamente do caminho da URL
+    const jogos = await Jogo.find({ _id: _id }); // Busca os jogos pelo título
+    return res.send(jogos);
+  }),
+
+  app.get('/titulo/:title', async (req, res) => {
+    const title = req.params.title; // Obtém o título diretamente do caminho da URL
+    const jogos = await Jogo.find({ title: title }); // Busca os jogos pelo título
+    return res.send(jogos);
+  }),
+
+  app.get('/ano/:ano_Lancamento', async (req, res) => {
+    const ano_Lancamento = req.params.ano_Lancamento; // Obtém o título diretamente do caminho da URL
+    const jogos = await Jogo.find({ ano_Lancamento: ano_Lancamento }); // Busca os jogos pelo título
+    return res.send(jogos);
+  }),
+
 //método utilizado para Adicionar novos dados de jogos(uso interno)
 app.post('/', async(req, res) =>{
     const jogo = new Jogo({
