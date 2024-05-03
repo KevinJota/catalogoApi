@@ -33,10 +33,12 @@ app.get('/:_id', async (req, res) => {
   }),
 
   app.get('/titulo/:title', async (req, res) => {
-    const title = req.params.title; // Obtém o título diretamente do caminho da URL
-    const jogos = await Jogo.find({ title: title }); // Busca os jogos pelo título
+    console.log("Buscando por jogo:", req.params.title);
+    const keyword = req.params.title;
+    const regex   = new RegExp(keyword, "i");
+    const jogos   = await Jogo.find({ title: regex });
     return res.send(jogos);
-  }),
+  });
 
   app.get('/ano/:ano_Lancamento', async (req, res) => {
     const ano_Lancamento = req.params.ano_Lancamento; // Obtém o título diretamente do caminho da URL
