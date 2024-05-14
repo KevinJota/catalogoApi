@@ -1,7 +1,8 @@
-- *Catálogo de Jogos API*
+- *Catálogo de Jogos API##*
 - Essa é uma API simples para gerenciar um catálogo de jogos, desenvolvida utilizando Node.js, Express.js e MongoDB. A API permite a consulta, adição, exclusão e atualização de jogos no catálogo.
 
-- *Funcionalidades*
+
+- *Funcionalidades##*
 - Consultar todos os jogos no catálogo.
 - Consultar jogos por ID.
 - Consultar jogos por título.
@@ -10,7 +11,8 @@
 - Excluir jogos do catálogo por ID.
 - Atualizar informações de jogos no catálogo por ID.
 
-- *Rotas da API*
+
+- *Rotas da API##*
 - GET /: Retorna todos os jogos no catálogo.
 - GET /:_id: Retorna um jogo específico pelo seu ID.
 - GET /titulo/:title: Retorna jogos cujos títulos correspondem à consulta.
