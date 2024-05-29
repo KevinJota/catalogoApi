@@ -13,7 +13,10 @@
 - /
 - /
 - *Rotas da API##*
-- GET /: Retorna todos os jogos no catálogo.
+- URL:
+- https://catalogoapi-0ycs.onrender.com/ +....
+- 
+- GET "/": Retorna todos os jogos no catálogo.
 - GET /:_id: Retorna um jogo específico pelo seu ID.
 - GET /titulo/:title: Retorna jogos cujos títulos correspondem à consulta.
 - GET /ano/:ano_Lancamento: Retorna jogos lançados em um ano específico.
