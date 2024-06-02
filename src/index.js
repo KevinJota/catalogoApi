@@ -90,7 +90,7 @@ app.put('/:id', async(req, res)=>{
 
 // URL de conexao com o Banco do mongoDB
 app.listen(port, () => {
-    mongoose.connect ('mongodb+srv://admin:RNvgWLM3GcFsIOgV@catalogo.actzwfx.mongodb.net/')
+    mongoose.connect ('mongodb+srv://guzmanalaca:wHPMbWOHuxx1RIac@catalog.q59852s.mongodb.net/')
 })
 
 console.log(`API rodando na porta ${port}`);
