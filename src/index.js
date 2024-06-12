@@ -1,96 +1,138 @@
-// Importa os módulos necessários
-const express = require('express'); // Importa o módulo Express.js para criar o servidor
-const mongoose = require('mongoose'); // Importa o módulo Mongoose para interagir com o MongoDB
-const cors = require('cors'); // Importa o módulo CORS para habilitar o acesso a recursos de diferentes origens
+require('dotenv').config();
+const express = require('express');
+const mongoose = require('mongoose');
+const cors = require('cors');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 
-// Cria e inicializa o aplicativo Express
 const app = express();
 app.use(express.json());
-
-// isso Permite solicitações de qualquer origem
 app.use(cors());
 
-// aqui é definido a porta
-const port = 3002;
+const port = process.env.PORT || 3002;
+const jwtSecret = process.env.JWT_SECRET || 'default_secret';
+const mongoUri = process.env.MONGODB_URI || 'mongodb+srv://guzmanalaca:wHPMbWOHuxx1RIac@catalog.q59852s.mongodb.net/';
 
-// criando collection/tabela do banco catalogo
-const Jogo = mongoose.model('Jogo',{
-    title : String,
-    description : String,
-    image_url : String,
-    trailer_url : String,
-    ano_Lancamento :String,
-    plataforma : String
-}); // isso aq Define o esquema de dados para os jogos
+const Jogo = mongoose.model('Jogo', {
+    title: String,
+    description: String,
+    image_url: String,
+    trailer_url: String,
+    ano_Lancamento: String,
+    plataforma: String
+});
 
-// método para consultar dados de todos os jogos
-app .get('/', async(req, res) =>{
+const User = mongoose.model('User', {
+    username: String,
+    email: String,
+    password: String,
+    favoriteGames: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Jogo' }]
+});
+
+app.get('/jogos', async (req, res) => {
     const jogos = await Jogo.find();
-    return res.send(jogos);
-}),
+    res.send(jogos);
+});
 
-// método para consultar um jogo pelo seu ID
-app.get('/:_id', async (req, res) => {
-    const _id = req.params._id; // Obtém o título diretamente do caminho da URL
-    const jogos = await Jogo.find({ _id: _id }); // Busca os jogos pelo título
-    return res.send(jogos);
-  }),
+app.get('/jogos/:_id', async (req, res) => {
+    const _id = req.params._id;
+    const jogos = await Jogo.find({ _id });
+    res.send(jogos);
+});
 
-// método de consulta multiplas de jogos por titulos, ele irá retornar jogos
-// que estiverem o titulo mais de acordo com o parametro recebido
-  app.get('/titulo/:title', async (req, res) => {
-    console.log("Buscando por jogo:", req.params.title);
+app.get('/jogos/titulo/:title', async (req, res) => {
     const keyword = req.params.title;
-    const regex   = new RegExp(keyword, "i");
-    const jogos   = await Jogo.find({ title: regex });
-    return res.send(jogos);
-  });
+    const regex = new RegExp(keyword, "i");
+    const jogos = await Jogo.find({ title: regex });
+    res.send(jogos);
+});
 
-// método de consulta multiplas de jogos por Ano de lançamento dos jogos
-  app.get('/ano/:ano_Lancamento', async (req, res) => {
-    const ano_Lancamento = req.params.ano_Lancamento; // Obtém o título diretamente do caminho da URL
-    const jogos = await Jogo.find({ ano_Lancamento: ano_Lancamento }); // Busca os jogos pelo título
-    return res.send(jogos);
-  }),
+app.get('/jogos/ano/:ano_Lancamento', async (req, res) => {
+    const ano_Lancamento = req.params.ano_Lancamento;
+    const jogos = await Jogo.find({ ano_Lancamento });
+    res.send(jogos);
+});
 
-// método utilizado para Adicionar novos dados de jogos(uso interno)
-app.post('/', async(req, res) =>{
-    const jogo = new Jogo({
-        title: req.body.title,
-        description : req.body.description,
-        image_url : req.body.image_url,
-        trailer_url : req.body.trailer_url,
-        ano_Lancamento : req.body.ano_Lancamento,
-        plataforma : req.body.plataforma
-    })
+app.post('/jogos', async (req, res) => {
+    const jogo = new Jogo(req.body);
     await jogo.save();
-    return res.send(jogo);
-}),
+    res.send(jogo);
+});
 
-// auto explicativo: exclui dados da collection por meio da ID(uso interno)
-app.delete('/:id' , async(req,res) =>{
-     const jogos = await Jogo.findByIdAndDelete(req.params.id);     
-     return res.send(jogos);
-}),
+app.delete('/jogos/:id', async (req, res) => {
+    const jogos = await Jogo.findByIdAndDelete(req.params.id);
+    res.send(jogos);
+});
 
-// método put é utilizado para alterar dados de algum jogo, tendo que receber como parametro a ID do jog para alterar(uso interno)
-app.put('/:id', async(req, res)=>{
-    const jogo = await Jogo.findByIdAndUpdate(req.params.id,{
-        title : req.body.title,
-        description : req.body.description,
-        image_url : req.body.image_url,
-        trailer_url : req.body.trailer_url,
-        ano_Lancamento : req.body.ano_Lancamento,
-        plataforma : req.body.plataforma
-    },
-    {
-        new : true
-    })
-})
+app.put('/jogos/:id', async (req, res) => {
+    const jogo = await Jogo.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    res.send(jogo);
+});
 
-// URL de conexao com o Banco do mongoDB
+app.post('/usuarios/register', async (req, res) => {
+    const { username, email, password } = req.body;
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const user = new User({ username, email, password: hashedPassword, favoriteGames: [] });
+
+    try {
+        const newUser = await user.save();
+        res.status(201).json(newUser);
+    } catch (error) {
+        res.status(400).json({ message: error.message });
+    }
+});
+
+app.post('/usuarios/login', async (req, res) => {
+    const { email, password } = req.body;
+    const user = await User.findOne({ email });
+    if (!user) return res.status(400).json({ message: 'User not found' });
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) return res.status(400).json({ message: 'Invalid credentials' });
+
+    const token = jwt.sign({ id: user._id }, jwtSecret, { expiresIn: '1h' });
+    res.json({ token, user });
+});
+
+app.get('/usuarios', async (req, res) => {
+    try {
+        const users = await User.find().select('-password');
+        res.json(users);
+    } catch (error) {
+        res.status(400).json({ message: error.message });
+    }
+});
+
+app.get('/usuarios/:id', async (req, res) => {
+    try {
+        const user = await User.findById(req.params.id).select('-password');
+        if (!user) return res.status(404).json({ message: 'User not found' });
+        res.json(user);
+    } catch (error) {
+        res.status(400).json({ message: error.message });
+    }
+});
+
+const authenticateToken = (req, res, next) => {
+    const token = req.header('Authorization')?.split(' ')[1];
+    if (!token) return res.status(401).json({ message: 'Access denied' });
+
+    try {
+        const verified = jwt.verify(token, jwtSecret);
+        req.user = verified;
+        next();
+    } catch (error) {
+        res.status(400).json({ message: 'Invalid token' });
+    }
+};
+
 app.listen(port, () => {
-    mongoose.connect ('mongodb+srv://guzmanalaca:wHPMbWOHuxx1RIac@catalog.q59852s.mongodb.net/')
-})
-
-console.log(`API rodando na porta ${port}`);
+    mongoose.connect(mongoUri, {
+        useNewUrlParser: true,
+        useUnifiedTopology: true
+    }).then(() => {
+        console.log(`API rodando na porta ${port}`);
+    }).catch(err => {
+        console.error('Erro ao conectar ao MongoDB', err);
+    });
+});
