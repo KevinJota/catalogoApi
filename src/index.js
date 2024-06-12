@@ -127,10 +127,7 @@ const authenticateToken = (req, res, next) => {
 };
 
 app.listen(port, () => {
-    mongoose.connect(mongoUri, {
-        useNewUrlParser: true,
-        useUnifiedTopology: true
-    }).then(() => {
+    mongoose.connect(mongoUri).then(() => {
         console.log(`API rodando na porta ${port}`);
     }).catch(err => {
         console.error('Erro ao conectar ao MongoDB', err);
