@@ -145,6 +145,16 @@ app.get('/usuarios/:id', async (req, res) => {
     }
 });
 
+// Obter todos os usuários
+app.get('/usuarios', async (req, res) => {
+    try {
+        const users = await User.find().select('-password');
+        res.json(users);
+    } catch (error) {
+        res.status(400).json({ message: error.message });
+    }
+});
+
 // Obter jogos favoritos de um usuário
 app.get('/usuarios/:id/favorite', async (req, res) => {
     try {
@@ -198,4 +208,3 @@ app.listen(port, () => {
         .then(() => console.log(`API rodando na porta ${port}`))
         .catch(err => console.error('Erro ao conectar ao MongoDB', err));
 });
-
