@@ -194,9 +194,8 @@ app.delete('/usuarios/:id/favorite/:gameId', async (req, res) => {
 
 // URL de conexão com o Banco do MongoDB
 app.listen(port, () => {
-    mongoose.connect('mongodb+srv://guzmanalaca:wHPMbWOHuxx1RIac@catalog.q59852s.mongodb.net/', {
-        useNewUrlParser: true,
-        useUnifiedTopology: true
-    }).then(() => console.log(`API rodando na porta ${port}`))
-      .catch(err => console.error('Erro ao conectar ao MongoDB', err));
+    mongoose.connect('mongodb+srv://guzmanalaca:wHPMbWOHuxx1RIac@catalog.q59852s.mongodb.net/')
+        .then(() => console.log(`API rodando na porta ${port}`))
+        .catch(err => console.error('Erro ao conectar ao MongoDB', err));
 });
+
